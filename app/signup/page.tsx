@@ -7,7 +7,13 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -44,11 +50,16 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Link href="/" className="text-xl font-bold tracking-tight mb-2 block">
-            SHAPE
+          <Link
+            href="/"
+            className="text-xl font-bold tracking-tight mb-2 block"
+          >
+            Adaptig
           </Link>
           <CardTitle>Create your account</CardTitle>
-          <CardDescription>Start managing your CxO training sessions</CardDescription>
+          <CardDescription>
+            Start your AI coaching journey
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
@@ -86,7 +97,11 @@ export default function SignupPage() {
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full bg-adaptig-orange hover:bg-adaptig-orange-hover text-white"
+              disabled={loading}
+            >
               {loading ? "Creating account..." : "Create account"}
             </Button>
           </form>

@@ -1,4 +1,4 @@
--- SHAPE Platform Database Schema
+-- Adaptig / SHAPE Platform Database Schema
 -- Run this in your Supabase SQL Editor
 
 -- Enable UUID extension
@@ -28,14 +28,28 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
--- Clients table
-create table public.clients (
+-- Companies table
+create table public.companies (
   id uuid default uuid_generate_v4() primary key,
   trainer_id uuid references public.profiles(id) on delete cascade not null,
   name text not null,
+  industry text,
+  logo_url text,
+  status text default 'active' check (status in ('active', 'completed', 'paused')),
+  notes text,
+  created_at timestamptz default now()
+);
+
+-- Clients table (now belongs to a company)
+create table public.clients (
+  id uuid default uuid_generate_v4() primary key,
+  trainer_id uuid references public.profiles(id) on delete cascade not null,
+  company_id uuid references public.companies(id) on delete set null,
+  name text not null,
   email text,
-  company text,
   title text,
+  level text default 'C-Suite' check (level in ('C-Suite', 'VP', 'Director', 'Manager', 'Individual')),
+  status text default 'active' check (status in ('active', 'completed', 'paused')),
   notes text,
   created_at timestamptz default now()
 );
@@ -45,7 +59,9 @@ create table public.sessions (
   id uuid default uuid_generate_v4() primary key,
   trainer_id uuid references public.profiles(id) on delete cascade not null,
   client_id uuid references public.clients(id) on delete cascade not null,
+  company_id uuid references public.companies(id) on delete set null,
   title text not null,
+  session_number integer default 1,
   date timestamptz not null,
   duration_minutes integer default 60,
   status text default 'scheduled' check (status in ('scheduled', 'completed', 'cancelled')),
@@ -57,6 +73,7 @@ create table public.sessions (
 
 -- Row Level Security
 alter table public.profiles enable row level security;
+alter table public.companies enable row level security;
 alter table public.clients enable row level security;
 alter table public.sessions enable row level security;
 
@@ -68,6 +85,23 @@ create policy "Users can view own profile"
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
+
+-- Companies: trainers can only CRUD their own companies
+create policy "Trainers can view own companies"
+  on public.companies for select
+  using (auth.uid() = trainer_id);
+
+create policy "Trainers can insert own companies"
+  on public.companies for insert
+  with check (auth.uid() = trainer_id);
+
+create policy "Trainers can update own companies"
+  on public.companies for update
+  using (auth.uid() = trainer_id);
+
+create policy "Trainers can delete own companies"
+  on public.companies for delete
+  using (auth.uid() = trainer_id);
 
 -- Clients: trainers can only CRUD their own clients
 create policy "Trainers can view own clients"

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SHAPE — AI-Powered CxO Training Platform",
+  title: "Adaptig — AI Adoption That Sticks",
   description:
-    "The platform for AI trainers running executive coaching sessions. Manage clients, schedule sessions, and leverage AI-powered tools.",
+    "Your executive coaching hub for AI adoption. Manage companies, clients, and coaching sessions with AI-powered tools.",
 };
 
 export default function RootLayout({
