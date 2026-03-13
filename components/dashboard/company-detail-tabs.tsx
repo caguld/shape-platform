@@ -3,6 +3,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { AddClientDialog } from "@/components/forms/add-client-dialog";
+import { InviteClientDialog } from "@/components/forms/invite-client-dialog";
 import {
   Users,
   FolderOpen,
@@ -29,6 +30,7 @@ interface Client {
 interface CompanyDetailTabsProps {
   companyId: string;
   trainerId: string;
+  companyName: string;
   clients: Client[];
 }
 
@@ -45,6 +47,7 @@ function ComingSoonPlaceholder({ title }: { title: string }) {
 export function CompanyDetailTabs({
   companyId,
   trainerId,
+  companyName,
   clients,
 }: CompanyDetailTabsProps) {
   return (
@@ -89,11 +92,18 @@ export function CompanyDetailTabs({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-foreground">Team Members</h3>
-            <AddClientDialog
-              trainerId={trainerId}
-              companyId={companyId}
-              variant="outline"
-            />
+            <div className="flex items-center gap-2">
+              <InviteClientDialog
+                trainerId={trainerId}
+                companyId={companyId}
+                companyName={companyName}
+              />
+              <AddClientDialog
+                trainerId={trainerId}
+                companyId={companyId}
+                variant="outline"
+              />
+            </div>
           </div>
 
           {clients.length > 0 ? (

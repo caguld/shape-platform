@@ -11,7 +11,8 @@ export default async function LandingPage() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/dashboard");
+    const isTrainer = user.email?.toLowerCase().endsWith("@adaptig.com") ?? false;
+    redirect(isTrainer ? "/dashboard" : "/portal");
   }
 
   return (

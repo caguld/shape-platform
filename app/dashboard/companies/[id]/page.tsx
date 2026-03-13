@@ -83,6 +83,7 @@ export default async function CompanyDetailPage(props: {
       <CompanyDetailTabs
         companyId={company.id}
         trainerId={user.id}
+        companyName={company.name}
         clients={clients ?? []}
       />
     </div>

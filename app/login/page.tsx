@@ -28,7 +28,7 @@ export default function LoginPage() {
     setError("");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -37,7 +37,10 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      // Route based on email domain
+      const userEmail = data.user?.email || "";
+      const isTrainer = userEmail.toLowerCase().endsWith("@adaptig.com");
+      router.push(isTrainer ? "/dashboard" : "/portal");
       router.refresh();
     }
   }
@@ -88,9 +91,9 @@ export default function LoginPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Adaptig trainer?{" "}
             <Link href="/signup" className="text-primary underline">
-              Sign up
+              Register here
             </Link>
           </p>
         </CardContent>

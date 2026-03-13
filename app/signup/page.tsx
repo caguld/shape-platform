@@ -14,6 +14,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { ShieldCheck } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -23,17 +24,28 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isAdaptigEmail = email.toLowerCase().endsWith("@adaptig.com");
+
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Only allow @adaptig.com emails to sign up as trainers
+    if (!email.toLowerCase().endsWith("@adaptig.com")) {
+      setError(
+        "Only @adaptig.com email addresses can register as trainers. If you're a client, please use the invitation link provided by your trainer."
+      );
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, role: "trainer" },
       },
     });
 
@@ -56,12 +68,19 @@ export default function SignupPage() {
           >
             Adaptig
           </Link>
-          <CardTitle>Create your account</CardTitle>
+          <CardTitle>Trainer Registration</CardTitle>
           <CardDescription>
-            Start your AI coaching journey
+            Create your Adaptig trainer account
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 flex items-start gap-2 rounded-lg bg-adaptig-beige/50 border border-adaptig-orange/20 p-3">
+            <ShieldCheck className="h-5 w-5 text-adaptig-orange shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground">
+              Trainer registration is restricted to <strong>@adaptig.com</strong> email addresses.
+              Clients receive invitations from their assigned trainer.
+            </p>
+          </div>
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -78,11 +97,16 @@ export default function SignupPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@adaptig.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              {email && !isAdaptigEmail && (
+                <p className="text-xs text-destructive">
+                  Only @adaptig.com emails can register as trainers
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -100,9 +124,9 @@ export default function SignupPage() {
             <Button
               type="submit"
               className="w-full bg-adaptig-orange hover:bg-adaptig-orange-hover text-white"
-              disabled={loading}
+              disabled={loading || (email.length > 0 && !isAdaptigEmail)}
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? "Creating account..." : "Create trainer account"}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">

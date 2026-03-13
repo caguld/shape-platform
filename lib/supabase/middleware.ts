@@ -29,24 +29,41 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users away from dashboard
-  if (
-    !user &&
-    request.nextUrl.pathname.startsWith("/dashboard")
-  ) {
+  const pathname = request.nextUrl.pathname;
+  const isTrainer = user?.email?.toLowerCase().endsWith("@adaptig.com") ?? false;
+
+  // ── Unauthenticated users ──
+  if (!user) {
+    // Block access to protected areas
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/portal")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    // Allow /join, /login, /signup, /
+    return supabaseResponse;
+  }
+
+  // ── Authenticated users ──
+
+  // Redirect away from auth pages
+  if (pathname === "/login" || pathname === "/signup" || pathname === "/join") {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = isTrainer ? "/dashboard" : "/portal";
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from login/signup
-  if (
-    user &&
-    (request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/signup")
-  ) {
+  // Trainers trying to access /portal → redirect to /dashboard
+  if (isTrainer && pathname.startsWith("/portal")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // Clients trying to access /dashboard → redirect to /portal
+  if (!isTrainer && pathname.startsWith("/dashboard")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/portal";
     return NextResponse.redirect(url);
   }
 
